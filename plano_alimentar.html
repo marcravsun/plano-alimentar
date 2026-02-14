@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Plano Alimentar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        
+        .daily-totals {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            color: white;
+        }
+        
+        .daily-totals h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.8em;
+        }
+        
+        .totals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .total-item {
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .total-item.carb { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
+        .total-item.fruit { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .total-item.protein-filling { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+        .total-item.protein { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
+        .total-item.veggies { background: linear-gradient(135deg, #96fbc4 0%, #f9f586 100%); }
+        .total-item.nuts { background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); }
+        .total-item.fats { background: linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%); }
+        
+        .total-number {
+            font-size: 2em;
+            font-weight: bold;
+            min-width: 40px;
+        }
+        
+        .total-label {
+            font-size: 0.95em;
+            line-height: 1.3;
+        }
+        
+        .meals-section {
+            margin-top: 40px;
+        }
+        
+        .meals-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .meal-card {
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .meal-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .breakfast { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+        .lunch { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); }
+        .snack { background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%); color: white; }
+        .dinner { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
+        .night { background: linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%); }
+        
+        .meal-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .meal-icon {
+            font-size: 1.8em;
+        }
+        
+        .meal-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .meal-item {
+            background: rgba(255,255,255,0.7);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.95em;
+            display: inline-block;
+            backdrop-filter: blur(5px);
+        }
+        
+        .meal-item.carb { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; }
+        .meal-item.fruit { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; }
+        .meal-item.protein-filling { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; }
+        .meal-item.protein { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: white; }
+        .meal-item.veggies { background: linear-gradient(135deg, #96fbc4 0%, #f9f586 100%); color: #333; }
+        .meal-item.nuts { background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); color: white; }
+        .meal-item.fats { background: linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%); color: #333; }
+        .meal-item.free { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); color: white; }
+        
+        .free-items {
+            margin-top: 30px;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .free-items h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .free-items p {
+            color: #555;
+            font-size: 1.1em;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-top: 40px;
+            border-bottom: 2px solid #667eea;
+            flex-wrap: wrap;
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+        
+        .tab-button {
+            padding: 12px 15px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            flex: 0 1 auto;
+            white-space: nowrap;
+        }
+        
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-button:hover {
+            color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px 0;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .food-group {
+            margin-bottom: 40px;
+        }
+        
+        .food-group h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.4em;
+        }
+        
+        .food-group.carb h3 { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; }
+        .food-group.fats h3 { background: linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%); color: #333; }
+        .food-group.veggies h3 { background: linear-gradient(135deg, #96fbc4 0%, #f9f586 100%); color: #333; }
+        .food-group.protein h3 { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: white; }
+        .food-group.protein-filling h3 { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; }
+        .food-group.fruit h3 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; }
+        
+        .food-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .food-table thead {
+            background: #f5f5f5;
+        }
+        
+        .food-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .food-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .food-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .food-table tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .highlight {
+            background: #fffbea;
+            font-weight: 500;
+        }
+        
+        .checklist-section {
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .checklist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .checklist-header h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin: 0;
+        }
+        
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .reset-button, .toggle-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s;
+        }
+        
+        .toggle-button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .reset-button:hover, .toggle-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .reset-button:active, .toggle-button:active {
+            transform: translateY(0);
+        }
+        
+        .checklist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .checklist-group {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .checklist-group h4 {
+            margin: 0 0 15px 0;
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .portion-count {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .checklist-group.carb h4 { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; }
+        .checklist-group.fruit h4 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; }
+        .checklist-group.protein-filling h4 { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; }
+        .checklist-group.protein h4 { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: white; }
+        .checklist-group.veggies h4 { background: linear-gradient(135deg, #96fbc4 0%, #f9f586 100%); color: #333; }
+        .checklist-group.nuts h4 { background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); color: white; }
+        .checklist-group.fats h4 { background: linear-gradient(135deg, #fdcbf1 0%, #e6dee9 100%); color: #333; }
+        
+        .checklist-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        
+        .checklist-item:hover {
+            background: #e8e8e8;
+            transform: translateX(3px);
+        }
+        
+        .checklist-item.checked {
+            opacity: 0.4;
+        }
+        
+        .checklist-item.checked:hover {
+            opacity: 0.6;
+        }
+        
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .checklist-item.checked .checkbox {
+            background: #667eea;
+            border-color: #667eea;
+        }
+        
+        .checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            display: none;
+        }
+        
+        .checklist-item.checked .checkbox::after {
+            display: block;
+        }
+        
+        .item-label {
+            flex: 1;
+            font-size: 1em;
+            color: #333;
+        }
+        
+        .date-display {
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover {
+            background: #f0f0ff;
+        }
+        
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .progress-badge {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .totals-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .checklist-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .tabs {
+                gap: 5px;
+            }
+            
+            .tab-button {
+                padding: 10px 12px;
+                font-size: 0.85em;
+            }
+            
+            .meal-card {
+                padding: 20px;
+            }
+            
+            .meal-title {
+                font-size: 1.3em;
+            }
+            
+            .food-table {
+                font-size: 0.9em;
+            }
+            
+            .food-table th,
+            .food-table td {
+                padding: 10px;
+            }
+            
+            .reset-button, .toggle-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+            
+            .header-buttons {
+                width: 100%;
+            }
+            
+            .filter-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .filter-btn {
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            .checklist-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 15px 10px;
+                overflow-x: hidden;
+            }
+            
+            .container {
+                padding: 15px;
+                border-radius: 20px;
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+            
+            h1 {
+                font-size: 1.6em;
+            }
+            
+            .subtitle {
+                font-size: 0.95em;
+            }
+            
+            .daily-totals {
+                padding: 15px;
+            }
+            
+            .daily-totals h2 {
+                font-size: 1.3em;
+            }
+            
+            .total-item {
+                padding: 10px;
+            }
+            
+            .total-number {
+                font-size: 1.5em;
+                min-width: 30px;
+            }
+            
+            .total-label {
+                font-size: 0.8em;
+            }
+            
+            .tabs {
+                gap: 3px;
+            }
+            
+            .tab-button {
+                padding: 10px 6px;
+                font-size: 0.7em;
+                flex: 1 1 30%;
+            }
+            
+            .meal-card {
+                padding: 12px;
+            }
+            
+            .meal-title {
+                font-size: 1.1em;
+            }
+            
+            .meal-icon {
+                font-size: 1.3em;
+            }
+            
+            .meal-item {
+                padding: 5px 10px;
+                font-size: 0.8em;
+            }
+            
+            .food-group h3 {
+                font-size: 1.05em;
+                padding: 10px;
+            }
+            
+            .food-table {
+                font-size: 0.75em;
+            }
+            
+            .food-table th,
+            .food-table td {
+                padding: 6px 4px;
+            }
+            
+            .checklist-header {
+                width: 100%;
+            }
+            
+            .checklist-header h2 {
+                font-size: 1.3em;
+            }
+            
+            .date-display {
+                font-size: 0.95em;
+            }
+            
+            .reset-button, .toggle-button {
+                padding: 8px 14px;
+                font-size: 0.8em;
+            }
+            
+            .checklist-group {
+                padding: 12px;
+                width: 100%;
+            }
+            
+            .checklist-group h4 {
+                font-size: 0.95em;
+                padding: 8px;
+                flex-wrap: wrap;
+            }
+            
+            .checklist-item {
+                padding: 8px;
+            }
+            
+            .checkbox {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .checkbox::after {
+                font-size: 14px;
+            }
+            
+            .item-label {
+                font-size: 0.85em;
+            }
+            
+            .filter-btn {
+                padding: 7px 10px;
+                font-size: 0.8em;
+            }
+            
+            .free-items {
+                padding: 12px;
+            }
+            
+            .free-items h3 {
+                font-size: 1em;
+            }
+            
+            .free-items p {
+                font-size: 0.9em;
+            }
+            
+            .progress-badge {
+                font-size: 0.8em;
+                padding: 4px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🥗 Meu Plano Alimentar</h1>
+        <p class="subtitle">Guia diário de porções balanceadas</p>
+        
+        <div class="daily-totals">
+            <h2>📊 Total Diário</h2>
+            <div class="totals-grid">
+                <div class="total-item carb">
+                    <div class="total-number">3</div>
+                    <div class="total-label">Carboidratos</div>
+                </div>
+                <div class="total-item fruit">
+                    <div class="total-number">2</div>
+                    <div class="total-label">Frutas</div>
+                </div>
+                <div class="total-item protein-filling">
+                    <div class="total-number">2</div>
+                    <div class="total-label">Recheios Proteicos</div>
+                </div>
+                <div class="total-item protein">
+                    <div class="total-number">2</div>
+                    <div class="total-label">Proteínas</div>
+                </div>
+                <div class="total-item veggies">
+                    <div class="total-number">4</div>
+                    <div class="total-label">Verduras e Legumes</div>
+                </div>
+                <div class="total-item nuts">
+                    <div class="total-number">1</div>
+                    <div class="total-label">Oleaginosas</div>
+                </div>
+                <div class="total-item fats">
+                    <div class="total-number">2</div>
+                    <div class="total-label">Óleos e Gorduras</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('plano')">📋 Plano</button>
+            <button class="tab-button" onclick="switchTab('lista')">📝 Substituições</button>
+            <button class="tab-button" onclick="switchTab('checklist')">✅ Checklist</button>
+        </div>
+        
+        <div id="plano-tab" class="tab-content active">
+            <div class="meals-section">
+            <div class="meals-grid">
+                <div class="meal-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border-left: 5px solid #667eea;">
+                    <div class="meal-title">
+                        <span class="meal-icon">💊</span>
+                        SUPLEMENTOS - ANTES DO CAFÉ
+                    </div>
+                    <div class="meal-items">
+                        <span class="meal-item" style="background: white; color: #667eea; font-weight: 600;">Collagen Plus - 1 scoop</span>
+                        <span class="meal-item" style="background: white; color: #667eea; font-weight: 600;">Golden Glutamine - 2 scoops</span>
+                    </div>
+                </div>
+                
+                <div class="meal-card breakfast">
+                    <div class="meal-title">
+                        <span class="meal-icon">🌅</span>
+                        DESJEJUM
+                    </div>
+                    <div class="meal-items">
+                        <span class="meal-item carb">1 Carboidrato</span>
+                        <span class="meal-item protein-filling">1 Recheio Proteico</span>
+                        <span class="meal-item fruit">1 Fruta</span>
+                    </div>
+                </div>
+                
+                <div class="meal-card lunch">
+                    <div class="meal-title">
+                        <span class="meal-icon">☀️</span>
+                        ALMOÇO
+                    </div>
+                    <div class="meal-items">
+                        <span class="meal-item carb">1 Carboidrato</span>
+                        <span class="meal-item veggies">2 Legumes/Verduras</span>
+                        <span class="meal-item protein">1 Proteína</span>
+                        <span class="meal-item fats">1 Óleo/Gordura</span>
+                        <span class="meal-item free">Salada livre 🥬</span>
+                    </div>
+                </div>
+                
+                <div class="meal-card" style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%); border-left: 5px solid #667eea;">
+                    <div class="meal-title">
+                        <span class="meal-icon">💊</span>
+                        SUPLEMENTOS - APÓS ALMOÇO
+                    </div>
+                    <div class="meal-items">
+                        <span class="meal-item" style="background: white; color: #667eea; font-weight: 600;">Amino Seven - 1 scoop</span>
+                        <span class="meal-item" style="background: white; color: #667eea; font-weight: 600;">Seven Creatine - 2 scoops</span>
+                        <span class="meal-item" style="background: white; color: #667eea; font-weight: 600;">Seven Lift - 4 cápsulas</span>
+                    </div>
+                </div>
+                
+                <div class="meal-card snack">
+                    <div class="meal-title">
+                        <span class="meal-icon">🍎</span>
+                        LANCHE DA TARDE
+                    </div>
+                    <div class="meal-items">
+                        <span class="meal-item protein-filling">1 Recheio Proteico</span>
+                        <span class="meal-item fruit">1 Fruta</span>
+                    </div>
+                </div>
+                
+                <div class="meal-card dinner">
+                    <div class="meal-title">
+                        <span class="meal-icon">🌙</span>
+                        JANTAR
+                    </div>
+                    <div class="meal-items">
+                        <span class="meal-item carb">1 Carboidrato</span>
+                        <span class="meal-item veggies">2 Legumes/Verduras</span>
+                        <span class="meal-item protein">1 Proteína</span>
+                        <span class="meal-item fats">1 Óleo/Gordura</span>
+                        <span class="meal-item free">Salada livre 🥬</span>
+                    </div>
+                </div>
+                
+                <div class="meal-card" style="background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%); color: white; border-left: 5px solid #2d3436;">
+                    <div class="meal-title">
+                        <span class="meal-icon">💊</span>
+                        SUPLEMENTOS - APÓS JANTAR
+                    </div>
+                    <div class="meal-items">
+                        <span class="meal-item" style="background: white; color: #6c5ce7; font-weight: 600;">Amino Seven - 1 scoop</span>
+                        <span class="meal-item" style="background: white; color: #6c5ce7; font-weight: 600;">High Magnesium - 2 cápsulas</span>
+                    </div>
+                </div>
+                
+                <div class="meal-card night">
+                    <div class="meal-title">
+                        <span class="meal-icon">✨</span>
+                        CEIA
+                    </div>
+                    <div class="meal-items">
+                        <span class="meal-item free">Chá livre ☕</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="free-items">
+            <h3>🎉 Alimentos Livres</h3>
+            <p>Salada (folhas) • Café • Chá</p>
+        </div>
+        </div>
+        
+        <div id="lista-tab" class="tab-content">
+            
+            <div class="food-group carb">
+                <h3>🌾 Grupo dos Carboidratos</h3>
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Alimento</th>
+                            <th>Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Arroz integral/negro/vermelho</td><td>2 colheres de sopa (40g)</td></tr>
+                        <tr><td>Aveia</td><td>1 colher de sopa (30g)</td></tr>
+                        <tr><td>Batata doce</td><td>3 rodelas (80g)</td></tr>
+                        <tr><td>Batata inglesa</td><td>2 rodelas médias (120g)</td></tr>
+                        <tr><td>Biscoito de arroz (Camil®)</td><td>9 unidades</td></tr>
+                        <tr><td>Biscoito de arroz tipo snack (Kalassi®)</td><td>8 unidades (25g)</td></tr>
+                        <tr><td>Biscoito de tapioca (Fhom®)</td><td>10 unidades</td></tr>
+                        <tr><td>Cuscuz marroquino</td><td>1 colher de sopa (30g)</td></tr>
+                        <tr><td>Doce de Leite</td><td>1 colher de sopa (30g)</td></tr>
+                        <tr><td>Granola sem açúcar</td><td>1 colher de sopa</td></tr>
+                        <tr><td>Macarrão de Mandioca Sem Glúten (Kodilar®)</td><td>20g cru / 80g cozido</td></tr>
+                        <tr><td>Macarrão Penne Sem Glúten (You-ka!®)</td><td>20g cru</td></tr>
+                        <tr><td>Magic Toast Light</td><td>1 pacote (6 torradas)</td></tr>
+                        <tr><td>Mandioca (macaxeira, aipim)</td><td>1 pedaço (55g)</td></tr>
+                        <tr><td>Massa com ovos parafuso (Barilla®)</td><td>20g cru</td></tr>
+                        <tr><td>Massa Parafuso com Ovos (Dona Benta®)</td><td>20g cru / 50g cozido</td></tr>
+                        <tr><td>Milho verde</td><td>½ espiga (90g)</td></tr>
+                        <tr><td>Pão de forma 5 Zeros (Vickbold®)</td><td>2 fatias</td></tr>
+                        <tr><td>Pão de forma Sem Glúten (Schaer®)</td><td>2 fatias</td></tr>
+                        <tr><td>Pinhão</td><td>1 colher de sopa (30g)</td></tr>
+                        <tr><td>Quinoa</td><td>2 colheres de sopa (40g)</td></tr>
+                        <tr><td>Tapioca</td><td>1 colher de sopa (20g)</td></tr>
+                        <tr><td>Torrada sem glúten (Aminna/Schär®)</td><td>2 unidades</td></tr>
+                        <tr><td>Torradas leves com cereais (Schar®)</td><td>3 unidades</td></tr>
+                        <tr><td>Tostas Integral Quinoa (Organic Bio®)</td><td>4 unidades (20g)</td></tr>
+                        <tr><td>Tostas tomate Bio (Organic Bio®)</td><td>4 unidades (20g)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="food-group fats">
+                <h3>🫒 Grupo dos Óleos e Gorduras</h3>
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Alimento</th>
+                            <th>Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Azeite de abacate</td><td>1 colher de chá (5g)</td></tr>
+                        <tr><td>Azeite extra virgem</td><td>1 colher de chá (5g)</td></tr>
+                        <tr><td>Óleo de gergelim/açaí</td><td>1 colher de chá (5g)</td></tr>
+                        <tr><td>Óleo de linhaça/chia</td><td>1 colher de chá (5g)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="food-group veggies">
+                <h3>🥬 Grupo das Verduras e Legumes</h3>
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Alimento</th>
+                            <th>Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight"><td>Alface, almeirão, agrião, couve manteiga, acelga, chicória, catalônia, funcho, endívia, escarola, pimentão, repolho roxo/branco, broto de feijão</td><td><strong>LIVRE</strong></td></tr>
+                        <tr><td>Cenoura, abobrinha, brócolis, couve-flor, quiabo, vagem, broto de moyashi, cogumelos (Paris, champignon, shimeji, shitake), nabo, rabanete, chuchu</td><td>3 colheres de sopa (20g por colher)</td></tr>
+                        <tr><td>Palmito, aspargos</td><td>2 unidades</td></tr>
+                        <tr><td>Tomate cereja</td><td>6 unidades</td></tr>
+                        <tr><td>Tomate, pepino</td><td>1 unidade</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="food-group protein">
+                <h3>🍖 Grupo das Proteínas</h3>
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Alimento</th>
+                            <th>Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Atum ao natural (em água)</td><td>1 lata</td></tr>
+                        <tr><td>Camarão/Polvo (1x/semana)</td><td>10 unidades (120g)</td></tr>
+                        <tr><td>Carne vermelha - patinho, filé mignon (1x/semana)</td><td>120g</td></tr>
+                        <tr><td>Carpaccio de salmão (sem queijo)</td><td>120g</td></tr>
+                        <tr><td>Cordeiro</td><td>1 porção média (120g)</td></tr>
+                        <tr><td>Coxa (sem pele)</td><td>2 unidades (120g)</td></tr>
+                        <tr><td>Filé de frango</td><td>1 filé pequeno (120g)</td></tr>
+                        <tr><td>Filé de peixe (Saint Peter, pescada, linguado)</td><td>1 filé médio (140g)</td></tr>
+                        <tr><td>Lombo suíno</td><td>1 filé médio (100g)</td></tr>
+                        <tr><td>Ovo</td><td>2 ovos + 1 clara</td></tr>
+                        <tr><td>Salmão</td><td>1 posta média (100g) / 10 sashimis</td></tr>
+                        <tr><td>Sashimi (polvo, Saint Peter, atum)</td><td>10 fatias</td></tr>
+                        <tr><td>Sobrecoxa (sem pele)</td><td>1 unidade pequena (120g)</td></tr>
+                        <tr><td>Vieira</td><td>140g</td></tr>
+                        <tr class="highlight"><td colspan="2"><strong>Opções Vegetarianas</strong></td></tr>
+                        <tr><td>Tofu</td><td>120g</td></tr>
+                        <tr><td>Shimeji/Shitake</td><td>1 prato de sobremesa (100g)</td></tr>
+                        <tr><td>Feijão/Lentilha/Grão de bico</td><td>1 concha (60g)</td></tr>
+                        <tr><td>Proteína de soja texturizada (1x/semana)</td><td>3 colheres de sopa (50g)</td></tr>
+                        <tr><td>Soja em grãos (1x/semana)</td><td>3 colheres de sopa (50g)</td></tr>
+                        <tr><td>Edamame</td><td>1 xícara de chá</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="food-group protein-filling">
+                <h3>🧀 Grupo dos Recheios Proteicos</h3>
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Alimento</th>
+                            <th>Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Bebida de soja</td><td>1 copo (200ml)</td></tr>
+                        <tr><td>Creme de ricota light</td><td>2 colheres de sopa (60g)</td></tr>
+                        <tr><td>Ovo</td><td>1 ovo inteiro ou 2 claras</td></tr>
+                        <tr><td>Pastas caseiras (receitas em anexo)</td><td>1 colher de sobremesa</td></tr>
+                        <tr><td>Patê de atum ou frango (receita em anexo)</td><td>2 colheres de sopa</td></tr>
+                        <tr><td>Queijo minas sem lactose</td><td>1 fatia (30g)</td></tr>
+                        <tr><td>Queijo muçarela sem lactose</td><td>1 fatia (30g)</td></tr>
+                        <tr><td>Queijo tipo cottage</td><td>2 colheres de sopa (50g)</td></tr>
+                        <tr><td>Requeijão light</td><td>1 colher de sopa (30g)</td></tr>
+                        <tr><td>Tofu</td><td>2 fatias médias (70g)</td></tr>
+                        <tr><td>Whey protein isolado/hidrolisado</td><td>½ scoop (15g)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="food-group fruit">
+                <h3>🍎 Grupo das Frutas</h3>
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Alimento</th>
+                            <th>Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Abacaxi</td><td>1 fatia média (70g)</td></tr>
+                        <tr><td>Ameixa natural</td><td>1 unidade média (90g)</td></tr>
+                        <tr><td>Amora</td><td>15 unidades (60g)</td></tr>
+                        <tr><td>Banana prata</td><td>1 unidade média (90g)</td></tr>
+                        <tr><td>Caqui</td><td>1 unidade pequena (80g)</td></tr>
+                        <tr><td>Figo in natura</td><td>2 unidades (100g)</td></tr>
+                        <tr><td>Geléia 100% fruta sem açúcar</td><td>2 colheres de sopa rasas (30g)</td></tr>
+                        <tr><td>Goiaba</td><td>1 unidade média (100g)</td></tr>
+                        <tr><td>Kiwi</td><td>1 unidade média (75g)</td></tr>
+                        <tr><td>Laranja/Tangerina</td><td>1 unidade (130g)</td></tr>
+                        <tr><td>Maçã</td><td>1 unidade média (120g)</td></tr>
+                        <tr><td>Mamão formosa</td><td>1 fatia (130g)</td></tr>
+                        <tr><td>Mamão papaia</td><td>½ unidade pequena (130g)</td></tr>
+                        <tr><td>Manga</td><td>½ unidade pequena (130g)</td></tr>
+                        <tr><td>Melancia</td><td>1 fatia (130g)</td></tr>
+                        <tr><td>Melão</td><td>1 fatia (130g)</td></tr>
+                        <tr><td>Morango</td><td>10 unidades (110g)</td></tr>
+                        <tr><td>Pera</td><td>1 unidade média (110g)</td></tr>
+                        <tr><td>Pêssego</td><td>1 unidade grande (100g)</td></tr>
+                        <tr><td>Pitaya</td><td>½ unidade média (130g)</td></tr>
+                        <tr><td>Tâmara</td><td>1 unidade média (14g)</td></tr>
+                        <tr><td>Uva verde</td><td>10 unidades (70g)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+        
+        <div id="checklist-tab" class="tab-content">
+            <div class="checklist-header">
+                <div class="date-display" id="current-date"></div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                    <div id="save-indicator" style="padding: 8px 16px; border-radius: 20px; background: #e8e8e8; color: #666; font-size: 0.85em; display: none;">
+                        ✓ Salvo
+                    </div>
+                    <button class="reset-button" id="btn-reset-day">🔄 Resetar Dia</button>
+                    <button class="reset-button" id="btn-clear-all" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); font-size: 0.75em; padding: 8px 12px;">🗑️ Limpar Tudo</button>
+                </div>
+            </div>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterItems('all')">Todas</button>
+                <button class="filter-btn" onclick="filterItems('pending')">Apenas Pendentes</button>
+            </div>
+            
+            <div class="checklist-section">
+                
+                <div class="checklist-group carb">
+                    <h4>
+                        <span>🌾 Carboidratos</span>
+                        <span class="progress-badge" id="progress-carb">0/3</span>
+                    </h4>
+                    <div class="checklist-items" id="carb-items">
+                        <div class="checklist-item" onclick="toggleCheck(this, 'carb')" data-group="carb">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 1 de Carboidrato</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'carb')" data-group="carb">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 2 de Carboidrato</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'carb')" data-group="carb">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 3 de Carboidrato</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="checklist-group fruit">
+                    <h4>
+                        <span>🍎 Frutas</span>
+                        <span class="progress-badge" id="progress-fruit">0/2</span>
+                    </h4>
+                    <div class="checklist-items" id="fruit-items">
+                        <div class="checklist-item" onclick="toggleCheck(this, 'fruit')" data-group="fruit">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 1 de Fruta</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'fruit')" data-group="fruit">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 2 de Fruta</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="checklist-group protein-filling">
+                    <h4>
+                        <span>🧀 Recheios Proteicos</span>
+                        <span class="progress-badge" id="progress-protein-filling">0/2</span>
+                    </h4>
+                    <div class="checklist-items" id="protein-filling-items">
+                        <div class="checklist-item" onclick="toggleCheck(this, 'protein-filling')" data-group="protein-filling">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 1 de Recheio Proteico</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'protein-filling')" data-group="protein-filling">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 2 de Recheio Proteico</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="checklist-group protein">
+                    <h4>
+                        <span>🍖 Proteínas</span>
+                        <span class="progress-badge" id="progress-protein">0/2</span>
+                    </h4>
+                    <div class="checklist-items" id="protein-items">
+                        <div class="checklist-item" onclick="toggleCheck(this, 'protein')" data-group="protein">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 1 de Proteína</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'protein')" data-group="protein">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 2 de Proteína</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="checklist-group veggies">
+                    <h4>
+                        <span>🥬 Verduras e Legumes</span>
+                        <span class="progress-badge" id="progress-veggies">0/4</span>
+                    </h4>
+                    <div class="checklist-items" id="veggies-items">
+                        <div class="checklist-item" onclick="toggleCheck(this, 'veggies')" data-group="veggies">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 1 de Verduras/Legumes</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'veggies')" data-group="veggies">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 2 de Verduras/Legumes</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'veggies')" data-group="veggies">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 3 de Verduras/Legumes</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'veggies')" data-group="veggies">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 4 de Verduras/Legumes</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="checklist-group nuts">
+                    <h4>
+                        <span>🥜 Oleaginosas</span>
+                        <span class="progress-badge" id="progress-nuts">0/1</span>
+                    </h4>
+                    <div class="checklist-items" id="nuts-items">
+                        <div class="checklist-item" onclick="toggleCheck(this, 'nuts')" data-group="nuts">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção de Oleaginosas</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="checklist-group fats">
+                    <h4>
+                        <span>🫒 Óleos e Gorduras</span>
+                        <span class="progress-badge" id="progress-fats">0/2</span>
+                    </h4>
+                    <div class="checklist-items" id="fats-items">
+                        <div class="checklist-item" onclick="toggleCheck(this, 'fats')" data-group="fats">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 1 de Óleos/Gorduras</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'fats')" data-group="fats">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Porção 2 de Óleos/Gorduras</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="checklist-group" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                    <h4 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <span>💊 Suplementos</span>
+                        <span class="progress-badge" id="progress-supplements">0/7</span>
+                    </h4>
+                    <div class="checklist-items" id="supplements-items">
+                        <div class="checklist-item" onclick="toggleCheck(this, 'supplements')" data-group="supplements">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Collagen Plus (antes do café)</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'supplements')" data-group="supplements">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Golden Glutamine (antes do café)</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'supplements')" data-group="supplements">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Amino Seven (após almoço)</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'supplements')" data-group="supplements">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Seven Creatine (após almoço)</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'supplements')" data-group="supplements">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Seven Lift (após almoço)</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'supplements')" data-group="supplements">
+                            <div class="checkbox"></div>
+                            <div class="item-label">Amino Seven (após jantar)</div>
+                        </div>
+                        <div class="checklist-item" onclick="toggleCheck(this, 'supplements')" data-group="supplements">
+                            <div class="checkbox"></div>
+                            <div class="item-label">High Magnesium (após jantar)</div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Função para obter a data no formato YYYY-MM-DD
+        function getDateKey() {
+            const today = new Date();
+            return today.getFullYear() + '-' + 
+                   String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                   String(today.getDate()).padStart(2, '0');
+        }
+        
+        // Mostrar indicador de salvamento
+        function showSaveIndicator() {
+            const indicator = document.getElementById('save-indicator');
+            if (indicator) {
+                indicator.style.display = 'block';
+                indicator.style.background = '#4CAF50';
+                indicator.style.color = 'white';
+                indicator.textContent = '✓ Salvo';
+                
+                setTimeout(() => {
+                    indicator.style.background = '#e8e8e8';
+                    indicator.style.color = '#666';
+                }, 1000);
+            }
+        }
+        
+        // Salvar estado IMEDIATAMENTE após cada clique
+        function saveChecklistState() {
+            try {
+                const state = {};
+                document.querySelectorAll('.checklist-item').forEach((item, index) => {
+                    state[index] = item.classList.contains('checked');
+                });
+                
+                const dateKey = getDateKey();
+                const stateStr = JSON.stringify(state);
+                
+                // Salvar com a data atual - MÚLTIPLAS ESTRATÉGIAS
+                localStorage.setItem('checklistState_' + dateKey, stateStr);
+                localStorage.setItem('checklistLastDate', dateKey);
+                localStorage.setItem('checklistBackup', stateStr); // Backup extra
+                localStorage.setItem('checklistSaveTime', new Date().getTime().toString());
+                
+                // FORÇAR gravação física no iOS (critical!)
+                try {
+                    const test = localStorage.getItem('checklistState_' + dateKey);
+                    if (test !== stateStr) {
+                        // Tentar novamente se falhou
+                        localStorage.setItem('checklistState_' + dateKey, stateStr);
+                    }
+                } catch(e) {
+                    console.error('Erro ao verificar salvamento:', e);
+                }
+                
+                showSaveIndicator();
+                console.log('✅ Estado salvo:', dateKey, Object.keys(state).length, 'itens');
+                return true;
+            } catch (e) {
+                console.error('❌ Erro ao salvar:', e);
+                const indicator = document.getElementById('save-indicator');
+                if (indicator) {
+                    indicator.style.display = 'block';
+                    indicator.style.background = '#f44336';
+                    indicator.style.color = 'white';
+                    indicator.textContent = '⚠ Erro ao salvar';
+                }
+                return false;
+            }
+        }
+        
+        // Carregar estado do dia atual
+        function loadChecklistState() {
+            try {
+                const dateKey = getDateKey();
+                let savedState = localStorage.getItem('checklistState_' + dateKey);
+                
+                // Se não encontrou, tentar backup
+                if (!savedState) {
+                    const lastDate = localStorage.getItem('checklistLastDate');
+                    if (lastDate === dateKey) {
+                        savedState = localStorage.getItem('checklistBackup');
+                        console.log('📦 Carregando do backup');
+                    }
+                }
+                
+                if (!savedState) {
+                    console.log('ℹ️ Nenhum estado salvo para hoje');
+                    return;
+                }
+                
+                const state = JSON.parse(savedState);
+                let loadedCount = 0;
+                
+                document.querySelectorAll('.checklist-item').forEach((item, index) => {
+                    if (state[index]) {
+                        item.classList.add('checked');
+                        loadedCount++;
+                    } else {
+                        item.classList.remove('checked');
+                    }
+                });
+                
+                // Atualizar todos os progresses
+                ['carb', 'fruit', 'protein-filling', 'protein', 'veggies', 'nuts', 'fats', 'supplements'].forEach(group => {
+                    updateProgress(group);
+                });
+                
+                console.log('✅ Estado carregado:', dateKey, loadedCount, 'itens marcados');
+                
+                // Mostrar indicador brevemente
+                const indicator = document.getElementById('save-indicator');
+                if (indicator && loadedCount > 0) {
+                    indicator.style.display = 'block';
+                    indicator.style.background = '#2196F3';
+                    indicator.style.color = 'white';
+                    indicator.textContent = '↻ ' + loadedCount + ' carregados';
+                    setTimeout(() => {
+                        indicator.style.display = 'none';
+                    }, 2000);
+                }
+            } catch (e) {
+                console.error('❌ Erro ao carregar:', e);
+            }
+        }
+        
+        // Limpar dados antigos (manter apenas últimos 7 dias)
+        function cleanOldData() {
+            try {
+                const today = new Date();
+                const keys = Object.keys(localStorage);
+                let cleaned = 0;
+                
+                keys.forEach(key => {
+                    if (key.startsWith('checklistState_')) {
+                        const dateStr = key.replace('checklistState_', '');
+                        const savedDate = new Date(dateStr);
+                        const diffDays = Math.floor((today - savedDate) / (1000 * 60 * 60 * 24));
+                        
+                        // Remover dados com mais de 7 dias
+                        if (diffDays > 7) {
+                            localStorage.removeItem(key);
+                            cleaned++;
+                        }
+                    }
+                });
+                
+                if (cleaned > 0) {
+                    console.log('🧹 Limpeza: ' + cleaned + ' dias antigos removidos');
+                }
+            } catch (e) {
+                console.error('Erro ao limpar dados antigos:', e);
+            }
+        }
+        
+        // Salvar ANTES de qualquer possível saída
+        function forceSave() {
+            saveChecklistState();
+            console.log('💾 Salvamento forçado');
+        }
+        
+        // Carregar estado ao iniciar - MÚLTIPLOS EVENTOS
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Iniciando app...');
+            loadChecklistState();
+            updateDate();
+            cleanOldData();
+            
+            // Adicionar event listeners aos botões
+            const btnResetDay = document.getElementById('btn-reset-day');
+            const btnClearAll = document.getElementById('btn-clear-all');
+            
+            if (btnResetDay) {
+                btnResetDay.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Botão Resetar Dia clicado!');
+                    resetChecklist();
+                });
+            }
+            
+            if (btnClearAll) {
+                btnClearAll.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Botão Limpar Tudo clicado!');
+                    clearAllData();
+                });
+            }
+        });
+        
+        // Detectar quando a página volta (iOS Safari)
+        window.addEventListener('pageshow', function(event) {
+            console.log('👁️ Página visível novamente');
+            if (event.persisted) {
+                // Página foi restaurada do cache
+                loadChecklistState();
+            }
+        });
+        
+        // Salvar ANTES de sair (iOS Safari)
+        window.addEventListener('pagehide', function() {
+            console.log('👋 Saindo da página');
+            forceSave();
+        });
+        
+        // Salvar quando perder foco
+        window.addEventListener('blur', function() {
+            console.log('👁️‍🗨️ Perdeu foco');
+            forceSave();
+        });
+        
+        // Salvar quando ganhar foco (e recarregar)
+        window.addEventListener('focus', function() {
+            console.log('👁️ Ganhou foco');
+            loadChecklistState();
+        });
+        
+        // Salvar quando a visibilidade mudar
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                console.log('🙈 Página oculta');
+                forceSave();
+            } else {
+                console.log('👀 Página visível');
+                loadChecklistState();
+            }
+        });
+        
+        // Flag para controlar salvamento automático
+        let pausarSalvamentoAutomatico = false;
+        
+        // Salvar periodicamente (backup a cada 5 segundos)
+        setInterval(function() {
+            if (!pausarSalvamentoAutomatico) {
+                saveChecklistState();
+            }
+        }, 5000);
+        
+        // Salvar ao fechar (se o browser permitir)
+        window.addEventListener('beforeunload', function() {
+            forceSave();
+        });
+        
+        function updateDate() {
+            const dateEl = document.getElementById('current-date');
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateEl.textContent = today.toLocaleDateString('pt-BR', options);
+        }
+        
+        function switchTab(tabName) {
+            // Salvar antes de trocar de tab
+            saveChecklistState();
+            
+            // Esconde todas as tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active de todos os botões
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Ativa a tab selecionada
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function toggleCheck(element, group) {
+            element.classList.toggle('checked');
+            updateProgress(group);
+            
+            // Salvar IMEDIATAMENTE após o clique
+            saveChecklistState();
+        }
+        
+        function updateProgress(group) {
+            const items = document.querySelectorAll(`[data-group="${group}"]`);
+            const checked = document.querySelectorAll(`[data-group="${group}"].checked`);
+            const total = items.length;
+            const done = checked.length;
+            
+            const badge = document.getElementById(`progress-${group}`);
+            if (badge) {
+                badge.textContent = `${done}/${total}`;
+            }
+        }
+        
+        function resetChecklist() {
+            console.log('🔄 Função resetChecklist chamada');
+            
+            const confirma = confirm('Tem certeza que deseja resetar todo o checklist do dia?');
+            console.log('Confirmação:', confirma);
+            
+            if (confirma) {
+                try {
+                    console.log('Iniciando reset...');
+                    
+                    // PAUSAR salvamento automático
+                    pausarSalvamentoAutomatico = true;
+                    
+                    // PRIMEIRO: Limpar localStorage ANTES de fazer qualquer coisa visual
+                    const dateKey = getDateKey();
+                    console.log('Removendo chave:', 'checklistState_' + dateKey);
+                    localStorage.removeItem('checklistState_' + dateKey);
+                    localStorage.removeItem('checklistLastDate');
+                    
+                    // SEGUNDO: Remover checked de todos os itens visualmente
+                    const items = document.querySelectorAll('.checklist-item');
+                    console.log('Items encontrados:', items.length);
+                    
+                    let removidos = 0;
+                    items.forEach(item => {
+                        if (item.classList.contains('checked')) {
+                            item.classList.remove('checked');
+                            removidos++;
+                        }
+                    });
+                    console.log('Checks removidos:', removidos);
+                    
+                    // TERCEIRO: Atualizar todos os progresses para 0
+                    const groups = ['carb', 'fruit', 'protein-filling', 'protein', 'veggies', 'nuts', 'fats', 'supplements'];
+                    groups.forEach(group => {
+                        const badge = document.getElementById('progress-' + group);
+                        const total = document.querySelectorAll(`[data-group="${group}"]`).length;
+                        if (badge) {
+                            badge.textContent = `0/${total}`;
+                        }
+                    });
+                    
+                    // QUARTO: Salvar estado vazio NO localStorage
+                    const emptyState = {};
+                    items.forEach((item, index) => {
+                        emptyState[index] = false;
+                    });
+                    localStorage.setItem('checklistState_' + dateKey, JSON.stringify(emptyState));
+                    localStorage.setItem('checklistLastDate', dateKey);
+                    
+                    console.log('Estado vazio salvo:', emptyState);
+                    
+                    // REATIVAR salvamento automático após 2 segundos
+                    setTimeout(function() {
+                        pausarSalvamentoAutomatico = false;
+                        console.log('Salvamento automático reativado');
+                    }, 2000);
+                    
+                    console.log('✅ Checklist resetado com sucesso!');
+                    alert('Checklist resetado! ✅');
+                    
+                } catch (e) {
+                    pausarSalvamentoAutomatico = false; // Reativar em caso de erro
+                    console.error('❌ Erro ao resetar:', e);
+                    alert('Erro ao resetar: ' + e.message);
+                }
+            }
+        }
+        
+        function clearAllData() {
+            console.log('🗑️ Função clearAllData chamada');
+            
+            const confirma = confirm('ATENÇÃO: Isso vai apagar TODOS os dados salvos (todos os dias). Tem certeza?');
+            console.log('Confirmação:', confirma);
+            
+            if (confirma) {
+                try {
+                    console.log('Iniciando limpeza total...');
+                    
+                    // Limpar TUDO do localStorage
+                    const keys = Object.keys(localStorage);
+                    console.log('Keys no localStorage:', keys);
+                    
+                    let removidos = 0;
+                    keys.forEach(key => {
+                        if (key.startsWith('checklistState_') || key.startsWith('checklist')) {
+                            localStorage.removeItem(key);
+                            removidos++;
+                            console.log('Removido:', key);
+                        }
+                    });
+                    
+                    console.log('Total removido:', removidos);
+                    
+                    // Resetar visualmente
+                    const items = document.querySelectorAll('.checklist-item');
+                    items.forEach(item => {
+                        item.classList.remove('checked');
+                    });
+                    
+                    // Atualizar progresso
+                    const groups = ['carb', 'fruit', 'protein-filling', 'protein', 'veggies', 'nuts', 'fats', 'supplements'];
+                    groups.forEach(group => {
+                        updateProgress(group);
+                    });
+                    
+                    console.log('✅ Todos os dados foram apagados!');
+                    alert('Todos os dados foram apagados! 🗑️\nRecarregando página...');
+                    
+                    // Recarregar após 1 segundo
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                    
+                } catch (e) {
+                    console.error('❌ Erro:', e);
+                    alert('Erro ao limpar: ' + e.message);
+                }
+            }
+        }
+        
+        function filterItems(mode) {
+            // Atualizar botões
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Filtrar itens
+            const items = document.querySelectorAll('.checklist-item');
+            items.forEach(item => {
+                if (mode === 'all') {
+                    item.style.display = 'flex';
+                } else if (mode === 'pending') {
+                    if (item.classList.contains('checked')) {
+                        item.style.display = 'none';
+                    } else {
+                        item.style.display = 'flex';
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
